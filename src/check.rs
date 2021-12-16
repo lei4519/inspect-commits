@@ -2,10 +2,18 @@ use colored::*;
 use std::process::exit;
 
 use crate::config::read_config;
-use crate::utils::{exec_out_call, exec_out_str};
+use crate::utils::{exec_out_call, exec_out_str, spawn};
 
 pub async fn check(remote_name: &str, remote_url: &str) {
-    println!("{}", "Validate Git Push running...".cyan(),);
+    println!("{}", "Validate Git Push running...".cyan());
+
+    let mut c = spawn("git", ["rev-parse"]).await;
+    let status = c.wait().await.expect("执行 git rev-parse 命令失败");
+
+    if matches!(status.code(), Some(code) if code != 0) {
+        println!("当前工作目录不是 git 仓库");
+        return
+    }
 
     let (config, ..) = read_config().await;
     let mut remote_url = remote_url.to_string();
@@ -48,7 +56,14 @@ pub async fn check(remote_name: &str, remote_url: &str) {
 
         println!("{}\n{:#?}\n", "Check Commits List:".cyan(), commits);
 
-        for rule in rules.into_iter() {
+        for mut rule in rules.into_iter() {
+            rule.excludes.retain(|s|!s.is_empty());
+            rule.words.retain(|s|!s.is_empty());
+
+            if rule.words.is_empty() {
+                continue;
+            }
+
             if rule.excludes.iter().any(|word| remote_url.contains(word)) {
                 continue;
             }

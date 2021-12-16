@@ -1,7 +1,7 @@
 use std::env;
 use std::fmt::Debug;
 use std::path::{Path, PathBuf};
-use std::process::{ExitStatus};
+use std::process::ExitStatus;
 use std::str::from_utf8;
 use std::{ffi::OsStr, process::Stdio};
 use tokio::fs::{File, OpenOptions};
@@ -11,7 +11,7 @@ use tokio::{
     process::Command,
 };
 
-pub async fn get_file(path: impl AsRef<Path>) -> File {
+pub async fn get_file(path: impl AsRef<Path> + Debug) -> File {
     OpenOptions::new()
         .read(true)
         .write(true)
@@ -21,11 +21,14 @@ pub async fn get_file(path: impl AsRef<Path>) -> File {
         .expect("文件不存在，初始化配置文件失败")
 }
 
-pub fn get_root_path() -> PathBuf {
-    let mut file_path = env::current_exe().unwrap();
+pub async fn get_root_path() -> PathBuf {
+    let file_path = env::current_exe().unwrap();
+    let mut file_path =
+        PathBuf::from(exec_out_str("readlink", [file_path.to_str().unwrap()]).await);
+
     file_path.pop();
     file_path.pop();
-    file_path.pop();
+
     file_path
 }
 

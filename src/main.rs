@@ -17,7 +17,6 @@ use clap::{App, Arg, SubCommand};
 use config::get_config_path;
 use hook::{set_global_hook, unset_global_hook};
 use tokio::process::Command;
-use utils::exec;
 
 #[tokio::main]
 async fn main() {
@@ -70,7 +69,7 @@ async fn main() {
             check("", "").await;
         }
         ("config", Some(sub_m)) => {
-            let path = get_config_path();
+            let path = get_config_path().await;
             let path = path.to_str().unwrap();
             if sub_m.is_present("PATH") {
                 println!("{}", path)

@@ -17,7 +17,7 @@ pub struct Rule {
 }
 
 pub async fn read_config() -> (Config, File) {
-    let mut file = get_file(get_config_path()).await;
+    let mut file = get_file(get_config_path().await).await;
 
     let mut contents = String::new();
 
@@ -37,8 +37,8 @@ pub async fn read_config() -> (Config, File) {
     (conf, file)
 }
 
-pub fn get_config_path() -> PathBuf {
-    let mut root_path = get_root_path();
+pub async fn get_config_path() -> PathBuf {
+    let mut root_path = get_root_path().await;
     root_path.push("config.json");
     root_path
 }

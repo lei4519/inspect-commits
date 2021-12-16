@@ -1,14 +1,14 @@
 use crate::utils::{exec, exec_out_str, get_root_path};
 use colored::*;
 
-pub fn get_hookdir_path() -> String {
-    let mut path = get_root_path();
+pub async fn get_hookdir_path() -> String {
+    let mut path = get_root_path().await;
     path.push("hooks");
     path.to_str().unwrap().to_string()
 }
 
 pub async fn set_global_hook() {
-    let hook_path = get_hookdir_path();
+    let hook_path = get_hookdir_path().await;
 
     let prev_path = exec_out_str("git", ["config", "--global", "--get", "core.hooksPath"]).await;
 
@@ -31,7 +31,7 @@ pub async fn set_global_hook() {
 pub async fn unset_global_hook() {
     let cur_path = exec_out_str("git", ["config", "--global", "--get", "core.hooksPath"]).await;
 
-    let hook_path = get_hookdir_path();
+    let hook_path = get_hookdir_path().await;
 
     if cur_path.is_empty() || hook_path != cur_path.trim() {
         println!("{}", "配置已清除".green());

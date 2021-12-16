@@ -2,6 +2,11 @@
 
 ROOT_DIR=$(cd `dirname $0`; cd ..; pwd)
 
+if test -e $ROOT_DIR/.git
+then
+    rm -rf $ROOT_DIR/.git
+fi
+
 if test -x "/usr/local/bin/validate-git-push"
 then
     rm /usr/local/bin/validate-git-push
