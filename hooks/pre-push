@@ -1,0 +1,3 @@
+#!/bin/sh
+
+validate-git-push $1 $2

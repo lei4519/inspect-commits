@@ -1,0 +1,10 @@
+#!/bin/bash
+
+ROOT_DIR=$(cd `dirname $0`; cd ..; pwd)
+
+if test -x "/usr/local/bin/validate-git-push"
+then
+    rm /usr/local/bin/validate-git-push
+fi
+
+ln -s $ROOT_DIR/release/validate-git-push /usr/local/bin/validate-git-push
