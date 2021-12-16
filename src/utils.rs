@@ -90,10 +90,15 @@ where
 
         if matches!(out_buf.read_line(&mut out_line).await, Ok(size) if size != 0) {
             count = count + 1;
-            if count == max && !f(&out_line) {
-                break;
+            if count == max{
+                if !f(&out_line) {
+                    break;
+                }
             }
         } else {
+            if !out_line.is_empty() {
+                f(&out_line);
+            }
             break;
         }
     }

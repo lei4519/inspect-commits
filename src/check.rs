@@ -65,12 +65,13 @@ pub async fn check(remote_name: &str, remote_url: &str) {
             }
 
             if rule.excludes.iter().any(|word| remote_url.contains(word)) {
+                println!("exclude remote repo: {}", remote_url);
                 continue;
             }
 
             for commit_hash in commits.iter() {
                 exec_out_call("git", ["show", commit_hash, "--pretty=format:%b"], |line| {
-                    rule.words.iter().any(|word| {
+                    rule.words.iter().for_each(|word| {
                         if line.contains(word) {
                             println!(
                                 "{}\n{} {}\n{} {}\n{}\n{}",
@@ -85,7 +86,6 @@ pub async fn check(remote_name: &str, remote_url: &str) {
                             );
                             exit(1);
                         }
-                        false
                     });
                     true
                 })
