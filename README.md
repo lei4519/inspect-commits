@@ -8,7 +8,7 @@ git pre-push hook（命令亦可单独使用），用于 git push 时检查提�
 
 ## 安装
 ```sh
-git clone git@github.com:lei4519/validate-git-push.git $HOME/.validate-git-push && $HOME/.validate-git-push/scripts/install
+git clone git@github.com:lei4519/validate-git-push.git --depth=1 $HOME/.validate-git-push && $HOME/.validate-git-push/scripts/install
 ```
 
 安装成功后，在终端中执行 `validate-git-push` 命令应该会有信息输出。
