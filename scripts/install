@@ -7,9 +7,9 @@ then
     rm -rf $ROOT_DIR/.git
 fi
 
-if test -x "/usr/local/bin/validate-git-push"
+if test -x "/usr/local/bin/inspect-commits"
 then
-    rm /usr/local/bin/validate-git-push
+    rm /usr/local/bin/inspect-commits
 fi
 
-ln -s $ROOT_DIR/release/validate-git-push /usr/local/bin/validate-git-push
+ln -s $ROOT_DIR/release/inspect-commits /usr/local/bin/inspect-commits

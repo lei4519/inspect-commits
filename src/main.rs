@@ -12,30 +12,35 @@ mod config;
 mod hook;
 mod utils;
 
+use std::{env, io, process::Command};
+
 use check::check;
 use clap::{App, Arg, SubCommand};
 use config::get_config_path;
 use hook::{set_global_hook, unset_global_hook};
-use tokio::process::Command;
 
-#[tokio::main]
-async fn main() {
-    let mut app = App::new("validate-git-push")
-        .version("1.0.0")
-        .about("校验 Git Commits 中的敏感信息")
+fn main() -> io::Result<()> {
+    let mut app = App::new("inspect-commits")
+        .version("0.0.2")
+        .about("检查 Git Commits 中的敏感词")
         .subcommand(
             SubCommand::with_name("check")
-                .about("检查当前分支中未提交到远程的 commits，必须传入远程仓库的名称")
+                .about("检查当前分支中未提交到远程仓库的 commits")
                 .arg(
-                    Arg::with_name("REMOTE_NAME")
-                        .help("远程仓库名称\nexample:\n\tvalidate-git-push check origin")
+                    Arg::with_name("REMOTE_REPO_NAME")
+                        .help("远程仓库名称, e.g. origin / upstream\nexample:\n\tinspect-commits check origin")
+                        .default_value("origin")
                         .required(true)
                         .index(1),
                 )
                 .arg(
-                    Arg::with_name("REMOTE_URL")
-                        .help("远程仓库地址，为空时自动获取：git config --get remote.<name>.url")
-                        .index(2),
+                    Arg::with_name("REMOTE_BRANCH_NAME")
+                        .help("远程分支名称，默认同本地分支名称") .index(2),
+                )
+                .arg(
+                    Arg::with_name("LOCAL_BRANCH_NAME")
+                        .help("本地分支名称，默认为当分支")
+                        .index(3),
                 ),
         )
         .subcommand(SubCommand::with_name("checkall").about("检查当前分支下的所有 commits"))
@@ -61,31 +66,40 @@ async fn main() {
 
     match matches.subcommand() {
         ("check", Some(sub_m)) => {
-            let remote_name = sub_m.value_of("REMOTE_NAME").unwrap();
-            let remote_url = sub_m.value_of("REMOTE_URL").unwrap_or("");
-            check(remote_name, remote_url).await;
+            let remote_repo_name = sub_m.value_of("REMOTE_REPO_NAME");
+            let remote_branch_name = sub_m.value_of("REMOTE_BRANCH_NAME");
+            let local_branch_name = sub_m.value_of("LOCAL_BRANCH_NAME");
+            check(remote_repo_name, remote_branch_name, local_branch_name)?;
         }
         ("checkall", Some(_)) => {
-            check("", "").await;
+            check(None, None, None)?;
         }
         ("config", Some(sub_m)) => {
-            let path = get_config_path().await;
+            let path = get_config_path()?;
             let path = path.to_str().unwrap();
             if sub_m.is_present("PATH") {
-                println!("{}", path)
+                println!("{}", path);
             } else {
-                let mut child = Command::new("vi").arg(path).spawn().expect("vim 启动失败");
-                child.wait().await.unwrap();
+                let editor = env::var_os("EDITOR").unwrap_or("vi".into());
+                Command::new(editor)
+                    .arg(path)
+                    .spawn()
+                    .expect(&format!(
+                        "open editor failed, please manual edit config: {}",
+                        path
+                    ))
+                    .wait()?;
             }
         }
         ("set-global-hook", Some(_)) => {
-            set_global_hook().await;
+            set_global_hook()?;
         }
         ("unset-global-hook", Some(_)) => {
-            unset_global_hook().await;
+            unset_global_hook()?;
         }
         _ => {
             app.print_help().unwrap();
         }
     }
+    Ok(())
 }

@@ -1,50 +1,49 @@
-# Validate Git Push
+# Inspect Commits
 
-git pre-push hook（命令亦可单独使用），用于 git push 时检查提交的 commits 中是否包含敏感词。
+检查 Git Commits 中的敏感词
 
 > 不支持 windows 系统
 
-![](https://gitee.com/lei451927/picture/raw/master/images/20211216134305.png)
+![](https://raw.githubusercontent.com/lei4519/picture-bed/main/images6B1F78A6-4351-432D-AD8A-A7C47AC5BF36.png)
 
 ## 安装
 ```sh
-git clone git@github.com:lei4519/validate-git-push.git --depth=1 $HOME/.validate-git-push && $HOME/.validate-git-push/scripts/install
+git clone git@github.com:lei4519/inspect-commits.git --depth=1 $HOME/.inspect-commits && $HOME/.inspect-commits/scripts/install
 ```
 
-安装成功后，在终端中执行 `validate-git-push` 命令应该会有信息输出。
+安装成功后，在终端中执行 `inspect-commits` 命令应该会有信息输出。
 ```sh
-validate-git-push
+inspect-commits
 ```
 
 ## 卸载
 
 ```sh
-validate-git-push unset-global-hook && rm /usr/local/bin/validate-git-push && rm -rf ~/.validate-git-push
+inspect-commits unset-global-hook && rm /usr/local/bin/inspect-commits && rm -rf ~/.inspect-commits
 ```
 
 ## 命令
 
 ```sh
 SUBCOMMANDS:
-    check                检查当前分支中未提交到远程的 commits，必须传入远程仓库的名称
+    check                检查当前分支中未提交到远程仓库的 commits
     checkall             检查当前分支下的所有 commits
     config               编辑配置文件；-p 参数返回文件地址
     set-global-hook      将程序配置为 git global core.hooksPath
     unset-global-hook    清除 git global core.hooksPath 配置
 ```
 
-
-### `validate-git-push config`
+### `inspect-commits config`
 编辑配置文件，文件格式为 JSON。
 
-#### 配置签名
+#### Config 格式
 ```ts
 // 可配多个规则
 type Rules = Array<Rule>
 
 type Rule = {
 	// 当前规则需要排除的远程地址
-	excludes: Array<string>
+	exclude_repo_urls: Array<string>
 	// 当前规则需要检查的敏感词
 	words: Array<string>
 }
@@ -53,41 +52,41 @@ type Rule = {
 #### 配置示例
 ```json
 {
-	"rules": [
-		{
-			"excludes": [
-				"github.com"
-			],
-			"words": [
-				"password"
-			]
-		},
-		{
-			"excludes": [
-				"gitlab.com"
-			],
-			"words": [
-				"sensitive"
-			]
-		}
-	]
+  "rules": [
+    {
+      "exclude_repo_urls": [
+        "github.com"
+      ],
+      "words": [
+        "password"
+      ]
+    },
+    {
+      "exclude_repo_urls": [
+        "gitlab.com"
+      ],
+      "words": [
+        "sensitive"
+      ]
+    }
+  ]
 }
 ```
 
-### `validate-git-push check`
-检查当前分支中未提交到远程的 commits，必须传入远程仓库的名称
+### `inspect-commits check`
+检查当前分支中未提交到远程仓库的 commits
 
 ```sh
-validate-git-push check origin
+inspect-commits check origin
 ```
 
-### `validate-git-push checkall`
+### `inspect-commits checkall`
 检查当前分支下的所有 commits
 
-### `validate-git-push set-global-hook`
+### `inspect-commits set-global-hook`
 将程序配置为全局的 pre-push hook，实际就是在设置 `git config --global core.hooksPath`
 
-### `validate-git-push unset-global-hook`
+### `inspect-commits unset-global-hook`
 清除全局 hook 配置，等同于执行 `git config --global --unset core.hooksPath`。
 
 ⚠️ 注意：
@@ -95,6 +94,16 @@ validate-git-push check origin
 - 如果在 git 仓库中配置了 hooksPath 会覆盖 git 全局的 hook
 
 如果存在以上情况，可以使用 [husky](https://github.com/typicode/husky) 进行多 hook 管理。
+
+## 配合 Husyk
+
+安装 Husky 并生成 `.husky/pre-push` 脚本后，将以下内容放入脚本中
+
+```sh
+read local_ref local_sha remote_ref remote_sha
+inspect-commits check $1 $remote_ref  $local_ref
+```
+
 
 ## 为什么不是 pre-commit?
 

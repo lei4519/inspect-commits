@@ -1,8 +1,8 @@
 {
-	"rules": [
-		{
-			"excludes": [],
-			"words": []
-		}
-	]
+  "rules": [
+    {
+      "exclude_repo_urls": [],
+      "words": []
+    }
+  ]
 }

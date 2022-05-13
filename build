@@ -2,4 +2,4 @@
 
 cargo build --release
 
-cp target/release/validate-git-push release/validate-git-push
+cp target/release/inspect-commits release/inspect-commits

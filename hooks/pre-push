@@ -1,3 +1,9 @@
 #!/bin/sh
 
-validate-git-push check $1 $2
+# git push <远程主机名> <本地分支名>:<远程分支名>
+# https://git-scm.com/docs/githooks#_pre_push
+
+read local_ref local_sha remote_ref remote_sha
+
+inspect-commits check $1 $remote_ref  $local_ref
+

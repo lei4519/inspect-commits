@@ -1,21 +1,23 @@
+use std::io;
+
 use crate::utils::{exec, exec_out_str, get_root_path};
 use colored::*;
 
-pub async fn get_hookdir_path() -> String {
-    let mut path = get_root_path().await;
+pub fn get_hookdir_path() -> io::Result<String> {
+    let mut path = get_root_path()?;
     path.push("hooks");
-    path.to_str().unwrap().to_string()
+    Ok(path.to_str().unwrap().to_string())
 }
 
-pub async fn set_global_hook() {
-    let hook_path = get_hookdir_path().await;
+pub fn set_global_hook() -> io::Result<()> {
+    let hook_path = get_hookdir_path()?;
 
-    let prev_path = exec_out_str("git", ["config", "--global", "--get", "core.hooksPath"]).await;
+    let prev_path = exec_out_str("git", ["config", "--global", "--get", "core.hooksPath"])?;
 
     if !prev_path.is_empty() {
         if hook_path == prev_path.trim() {
             println!("{}", "配置成功".green());
-            return;
+            return Ok(());
         }
         println!(
             "{}",
@@ -24,21 +26,23 @@ pub async fn set_global_hook() {
         );
     }
 
-    exec("git", ["config", "--global", "core.hooksPath", &hook_path]).await;
+    exec("git", ["config", "--global", "core.hooksPath", &hook_path])?;
     println!("{}\n{}", "注意：仓库中配置的 hooksPath 会覆盖全局行为，如果仓库中也有 hook 执行，考虑使用 husky 库进行管理。".yellow(), "配置成功".green());
+    Ok(())
 }
 
-pub async fn unset_global_hook() {
-    let cur_path = exec_out_str("git", ["config", "--global", "--get", "core.hooksPath"]).await;
+pub fn unset_global_hook() -> io::Result<()> {
+    let cur_path = exec_out_str("git", ["config", "--global", "--get", "core.hooksPath"])?;
 
-    let hook_path = get_hookdir_path().await;
+    let hook_path = get_hookdir_path()?;
 
     if cur_path.is_empty() || hook_path != cur_path.trim() {
         println!("{}", "配置已清除".green());
-        return;
+        return Ok(());
     }
-    exec("git", ["config", "--global", "--unset", "core.hooksPath"]).await;
+    exec("git", ["config", "--global", "--unset", "core.hooksPath"])?;
     println!("{}", "配置已清除".green());
+    Ok(())
 }
 
 // pub async fn pre_push() {

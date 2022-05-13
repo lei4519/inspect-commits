@@ -1,9 +1,10 @@
-use std::path::PathBuf;
-
-use serde::{Deserialize, Serialize};
-use tokio::{fs::File, io::AsyncReadExt};
-
 use crate::utils::{get_file, get_root_path};
+use serde::{Deserialize, Serialize};
+use std::{
+    fs::File,
+    io::{self, Read},
+    path::PathBuf,
+};
 
 #[derive(Deserialize, Serialize, Debug)]
 pub struct Config {
@@ -12,33 +13,36 @@ pub struct Config {
 
 #[derive(Deserialize, Serialize, Debug)]
 pub struct Rule {
-    pub excludes: Vec<String>,
+    pub exclude_repo_urls: Vec<String>,
     pub words: Vec<String>,
 }
 
-pub async fn read_config() -> (Config, File) {
-    let mut file = get_file(get_config_path().await).await;
+pub fn read_config() -> io::Result<(Config, File)> {
+    let path = get_config_path()?;
+    let mut file = get_file(path);
 
     let mut contents = String::new();
 
-    file.read_to_string(&mut contents)
-        .await
-        .expect("读取配置文件失败");
+    file.read_to_string(&mut contents)?;
 
     let conf = if contents.is_empty() {
-        Config {
-            rules: None,
-        }
+        Config { rules: None }
     } else {
-        serde_json::from_str::<Config>(&contents).expect(&format!(
-            "解析配置文件 JSON 失败，请检查文件内容: validate-git-push config"
-        ))
+        match serde_json::from_str::<Config>(&contents) {
+            Ok(v) => v,
+            Err(err) => {
+                return Err(io::Error::new(
+                    io::ErrorKind::InvalidData,
+                    format!("config file: {}", err),
+                ))
+            }
+        }
     };
-    (conf, file)
+    Ok((conf, file))
 }
 
-pub async fn get_config_path() -> PathBuf {
-    let mut root_path = get_root_path().await;
+pub fn get_config_path() -> io::Result<PathBuf> {
+    let mut root_path = get_root_path()?;
     root_path.push("config.json");
-    root_path
+    Ok(root_path)
 }
