@@ -2,6 +2,7 @@
 
 ROOT_DIR=$(cd `dirname $0`; cd ..; pwd)
 
+# 删除仓库的 .git 目录
 if test -e $ROOT_DIR/.git
 then
     rm -rf $ROOT_DIR/.git
@@ -13,3 +14,17 @@ then
 fi
 
 ln -s $ROOT_DIR/release/inspect-commits /usr/local/bin/inspect-commits
+
+# 建立 config 文件
+
+if ! test -d $HOME/.config
+then
+  mkdir -p $HOME/.config
+fi
+
+if ! test -e $HOME/.config/inspect-commits.json
+then
+  touch $HOME/.config/inspect-commits.json
+fi
+
+

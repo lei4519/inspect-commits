@@ -125,7 +125,7 @@ pub fn check(
                 .iter()
                 .any(|url| remote_url.contains(url))
             {
-                println!("Hit exclude URL: {}, words: {:?}", remote_url, rule.words);
+                println!("Hit exclude URL: {}, Words: {:?}", remote_url.trim(), rule.words);
                 return ws;
             }
 

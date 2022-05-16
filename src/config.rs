@@ -1,4 +1,4 @@
-use crate::utils::{get_file, get_root_path};
+use crate::utils::get_file;
 use serde::{Deserialize, Serialize};
 use std::{
     fs::File,
@@ -18,7 +18,7 @@ pub struct Rule {
 }
 
 pub fn read_config() -> io::Result<(Config, File)> {
-    let path = get_config_path()?;
+    let path = get_config_path();
     let mut file = get_file(path);
 
     let mut contents = String::new();
@@ -41,8 +41,9 @@ pub fn read_config() -> io::Result<(Config, File)> {
     Ok((conf, file))
 }
 
-pub fn get_config_path() -> io::Result<PathBuf> {
-    let mut root_path = get_root_path()?;
-    root_path.push("config.json");
-    Ok(root_path)
+pub fn get_config_path() -> PathBuf {
+    let mut path = home::home_dir().expect("Impossible to get your home dir!");
+    path.push(".config");
+    path.push("inspect-commits.json");
+    path
 }

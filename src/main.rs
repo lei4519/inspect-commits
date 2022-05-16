@@ -75,7 +75,7 @@ fn main() -> io::Result<()> {
             check(None, None, None)?;
         }
         ("config", Some(sub_m)) => {
-            let path = get_config_path()?;
+            let path = get_config_path();
             let path = path.to_str().unwrap();
             if sub_m.is_present("PATH") {
                 println!("{}", path);
