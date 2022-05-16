@@ -143,8 +143,16 @@ pub fn check(
         })
         .join("|");
 
+    if words_str.is_empty() {
+        println!("{}", "There are no more words to check".cyan());
+        exit(0);
+    } else {
+        println!("{}: {}", "Sensitive words".cyan(), words_str.cyan())
+    }
+
+
     let words_reg =
-        Regex::new(&words_str).expect("words 中存在无法构建正则表达式的字符，程序无法正常运行");
+        Regex::new(&words_str).expect("There are characters in the word that cannot build the regular expression.");
 
     for commit in commits {
         exec_out_call(5, "git", ["show", &commit, "--pretty=format:%s"], |line| {
