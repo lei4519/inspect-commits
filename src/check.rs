@@ -59,10 +59,14 @@ pub fn check(
         }
     }
 
-    let arg = if remote_repo_name.is_none() {
-        // 没有 remote_name 说明要检查所有的 commits
+    let checkall = || {
         println!("🔎 {}", "Check all commit".cyan());
         "--all".to_string()
+    };
+
+    let arg = if remote_repo_name.is_none() {
+        // 没有 remote_name 说明要检查所有的 commits
+        checkall()
     } else {
         let (local_branch_name, remote_branch_name) =
             if local_branch_name.is_some() && remote_branch_name.is_some() {
@@ -91,16 +95,35 @@ pub fn check(
                 (local, remote)
             };
 
-        let v = format!(
-            "{}/{}..{}",
-            remote_repo_name.unwrap_or("origin"),
-            remote_branch_name,
-            local_branch_name
-        );
+        let remote_repo_name = remote_repo_name.unwrap_or("origin");
 
-        println!("🔎 Check {}", &v.cyan());
+        // 先检查一下远程分支存不存在，如果不存在，退回检查所有的分支
+        // 当我们向远程仓库推送并新建一个分支的时候会发生这种情况
+        if let Ok(out) = exec_out_str(
+            "git",
+            [
+                "ls-remote",
+                "--heads",
+                &remote_repo_name,
+                &remote_branch_name,
+            ],
+        ) {
+            if out.is_empty() {
+                checkall()
+            } else {
+                let v = format!(
+                    "{}/{}..{}",
+                    remote_repo_name, remote_branch_name, local_branch_name
+                );
 
-        v
+                println!("🔎 Check {}", &v.cyan());
+
+                v
+            }
+        } else {
+            // 如果这条命令失败了，也退回到检查所有分支
+            checkall()
+        }
     };
 
     let commits = exec_out_str("git", ["log", "--pretty=format:%h", arg.as_str()])?;
@@ -125,7 +148,11 @@ pub fn check(
                 .iter()
                 .any(|url| remote_url.contains(url))
             {
-                println!("Hit exclude URL: {}, Words: {:?}", remote_url.trim(), rule.words);
+                println!(
+                    "Hit exclude URL: {}, Words: {:?}",
+                    remote_url.trim(),
+                    rule.words
+                );
                 return ws;
             }
 
@@ -150,9 +177,8 @@ pub fn check(
         println!("{}: {}", "Sensitive words".cyan(), words_str.cyan())
     }
 
-
-    let words_reg =
-        Regex::new(&words_str).expect("There are characters in the word that cannot build the regular expression.");
+    let words_reg = Regex::new(&words_str)
+        .expect("There are characters in the word that cannot build the regular expression.");
 
     for commit in commits {
         exec_out_call(5, "git", ["show", &commit, "--pretty=format:%s"], |line| {
