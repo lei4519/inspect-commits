@@ -1,5 +1,0 @@
-#!/bin/sh
-
-cargo build --release
-
-cp target/release/inspect-commits release/inspect-commits

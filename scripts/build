@@ -1,0 +1,8 @@
+#!/bin/bash
+
+name=inspect-commits
+
+cd ./target/release
+
+tar -czvf $name.tar.gz $name _$name $name.bash $name.fish
+

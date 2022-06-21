@@ -7,8 +7,9 @@
 ![](https://raw.githubusercontent.com/lei4519/picture-bed/main/images6B1F78A6-4351-432D-AD8A-A7C47AC5BF36.png)
 
 ## 安装
+
 ```sh
-git clone git@github.com:lei4519/inspect-commits.git --depth=1 $HOME/.inspect-commits && $HOME/.inspect-commits/scripts/install
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/lei4519/inspect-commits/main/scripts/install)"
 ```
 
 安装成功后，在终端中执行 `inspect-commits` 命令应该会有信息输出。
@@ -19,7 +20,7 @@ inspect-commits
 ## 卸载
 
 ```sh
-inspect-commits unset-global-hook && rm /usr/local/bin/inspect-commits && rm -rf ~/.inspect-commits
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/lei4519/inspect-commits/main/scripts/uninstall)"
 ```
 
 ## 命令

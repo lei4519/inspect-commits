@@ -1,25 +1,24 @@
-use clap_complete::shells::Zsh;
-use clap_complete::{generate_to, shells::Bash};
-use std::env;
-use std::io::Error;
+use clap_complete::{
+    generate_to,
+    shells::{Bash, Fish, Zsh},
+};
+use std::{env, io::Error};
 
 include!("src/cli.rs");
 
 fn main() -> Result<(), Error> {
-    let outdir = match env::var_os("OUT_DIR") {
-        None => return Ok(()),
-        Some(outdir) => outdir,
-    };
+    let name = "inspect-commits";
+
+    let mut release_dir = env::current_dir()?;
+    release_dir.push("target/release");
 
     let mut cmd = build_cli();
-    let path = generate_to(
-        Zsh,
-        &mut cmd,          // We need to specify what generator to use
-        "inspect-commits", // We need to specify the bin name manually
-        outdir,            // We need to specify where to write to
-    )?;
 
-    println!("cargo:warning=completion file is generated: {:?}", path);
+    generate_to(Bash, &mut cmd, name, &release_dir)?;
+
+    generate_to(Zsh, &mut cmd, name, &release_dir)?;
+
+    generate_to(Fish, &mut cmd, name, &release_dir)?;
 
     Ok(())
 }

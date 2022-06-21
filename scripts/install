@@ -1,30 +1,48 @@
 #!/bin/bash
 
-ROOT_DIR=$(cd `dirname $0`; cd ..; pwd)
+name=inspect-commits
 
-# 删除仓库的 .git 目录
-if test -e $ROOT_DIR/.git
-then
-    rm -rf $ROOT_DIR/.git
+cd $HOME
+
+mkdir -p .$name
+
+cd .$name
+
+platform=''
+if [[ "$OSTYPE" == "linux-gnu"* ]]; then
+  platform=$name-linux-amd64.tar.gz
+elif [[ "$OSTYPE" == "darwin"* ]]; then
+  platform=$name-macos-amd64.tar.gz
+        # Mac OSX
+# elif [[ "$OSTYPE" == "cygwin" ]]; then
+#         # POSIX compatibility layer and Linux environment emulation for Windows
+# elif [[ "$OSTYPE" == "msys" ]]; then
+#         # Lightweight shell and GNU utilities compiled for Windows (part of MinGW)
+# elif [[ "$OSTYPE" == "win32" ]]; then
+#         # I'm not sure this can happen.
+# elif [[ "$OSTYPE" == "freebsd"* ]]; then
+#         # ...
+# else
+        # Unknown.
 fi
 
-if test -x "/usr/local/bin/inspect-commits"
-then
-    rm /usr/local/bin/inspect-commits
-fi
+latest_version=$(curl -L -s -H 'Accept: application/json' https://github.com/lei4519/$name/releases/latest | sed -e 's/.*"tag_name":"\([^"]*\)".*/\1/')
 
-ln -s $ROOT_DIR/release/inspect-commits /usr/local/bin/inspect-commits
+download_url=https://github.com/lei4519/$name/releases/download/$latest_version/$platform
 
-# 建立 config 文件
+curl -fsSLO $download_url
 
-if ! test -d $HOME/.config
-then
-  mkdir -p $HOME/.config
-fi
+tar -xzf $platform
 
-if ! test -e $HOME/.config/inspect-commits.json
-then
-  touch $HOME/.config/inspect-commits.json
-fi
+mkdir -p /usr/local/bin
+ln -f -s $HOME/.$name/$name /usr/local/bin/$name
 
+mkdir -p /usr/local/share/zsh/site-functions 
+ln -f -s $HOME/.$name/_$name /usr/local/share/zsh/site-functions/_$name
+
+mkdir -p /usr/local/share/bash-completion/completions 
+ln -f -s $HOME/.$name/$name.bash /usr/local/share/bash-completion/completions/$name.bash
+
+mkdir -p /usr/local/share/fish/vendor_completions.d 
+ln -f -s $HOME/.$name/$name.fish /usr/local/share/fish/vendor_completions.d/$name.fish
 
