@@ -9,7 +9,7 @@
 ## 安装
 
 ```sh
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/lei4519/inspect-commits/main/scripts/install)"
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/lei4519/inspect-commits/master/scripts/install)"
 ```
 
 安装成功后，在终端中执行 `inspect-commits` 命令应该会有信息输出。
@@ -20,7 +20,7 @@ inspect-commits
 ## 卸载
 
 ```sh
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/lei4519/inspect-commits/main/scripts/uninstall)"
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/lei4519/inspect-commits/master/scripts/uninstall)"
 ```
 
 ## 命令
