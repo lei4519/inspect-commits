@@ -21,7 +21,6 @@ pub fn get_root_path() -> io::Result<PathBuf> {
     let mut file_path = PathBuf::from(exec_out_str("readlink", [file_path.to_str().unwrap()])?);
 
     file_path.pop();
-    file_path.pop();
 
     Ok(file_path)
 }
@@ -88,4 +87,3 @@ where
     }
     Ok(())
 }
-

@@ -2,6 +2,8 @@
 
 name=inspect-commits
 
+inspect-commits unset-global-hook 
+
 rm -f /usr/local/bin/$name
 
 rm -f /usr/local/share/zsh/site-functions/_$name

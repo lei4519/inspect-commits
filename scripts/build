@@ -2,7 +2,9 @@
 
 name=inspect-commits
 
+cp -af hooks target/release/hooks
+
 cd ./target/release
 
-tar -czvf $name.tar.gz $name _$name $name.bash $name.fish
+tar -czvf $name.tar.gz $name _$name $name.bash $name.fish hooks
 
